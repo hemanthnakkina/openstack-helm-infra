@@ -1,0 +1,83 @@
+# Copyright 2017 The Openstack-Helm Authors.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+images:
+  tags:
+    multus: nfvpe/multus:latest
+    dep_check: quay.io/stackanetes/kubernetes-entrypoint:v0.3.1
+    image_repo_sync: docker.io/docker:17.07.0
+  pull_policy: IfNotPresent
+  local_registry:
+    active: false
+    exclude:
+      - dep_check
+      - image_repo_sync
+      - multus
+
+pod:
+  resources:
+    enabled: false
+    multus:
+      requests:
+        memory: "128Mi"
+        cpu: "100m"
+      limits:
+        memory: "1024Mi"
+        cpu: "2000m"
+  mandatory_access_control:
+    type: apparmor
+    multus:
+      multus: localhost/docker-default
+
+dependencies:
+  static:
+    multus:
+      jobs: null
+
+conf:
+  cni_config:
+    # https://github.com/intel/multus-cni/blob/master/doc/configuration.md
+    name: multus-cni-network
+    type: multus
+    kubeconfig: __KUBECONFIG_FILEPATH__
+    confDir: /etc/cni/multus/net.d
+    cniDir: /var/lib/cni/multus
+    binDir: /opt/cni/bin
+    logLevel: panic
+    capabilities:
+      portMappings: true
+    readinessindicatorfile: ""
+    namespaceisolation: false
+    delegates:
+      - type: calico
+        cniVersion: 0.3.0
+        log_level: info
+        etcd_endpoints: __ETCD_ENDPOINTS__
+        etcd_key_file: __ETCD_KEY_FILE__
+        etcd_cert_file: __ETCD_CERT_FILE__
+        etcd_ca_cert_file: __ETCD_CA_CERT_FILE__
+        ipam:
+          type: calico-ipam
+        policy:
+          type: k8s
+        kubernetes:
+          kubeconfig: __KUBECONFIG_FILEPATH__
+#      - type: portmap
+#        snat: true
+#        capabilities:
+#          portMappings: true
+
+manifests:
+  configmap_etc: true
+  daemonset_multus: true
