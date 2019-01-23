@@ -14,7 +14,7 @@
 
 images:
   tags:
-    multus: nfvpe/multus:latest
+    multus: nfvpe/multus:snapshot
     dep_check: quay.io/stackanetes/kubernetes-entrypoint:v0.3.1
     image_repo_sync: docker.io/docker:17.07.0
   pull_policy: IfNotPresent
@@ -59,20 +59,23 @@ conf:
       portMappings: true
     readinessindicatorfile: ""
     namespaceisolation: false
-    delegates:
-      - type: calico
-        cniVersion: 0.3.0
-        log_level: info
-        etcd_endpoints: __ETCD_ENDPOINTS__
-        etcd_key_file: __ETCD_KEY_FILE__
-        etcd_cert_file: __ETCD_CERT_FILE__
-        etcd_ca_cert_file: __ETCD_CA_CERT_FILE__
-        ipam:
-          type: calico-ipam
-        policy:
-          type: k8s
-        kubernetes:
-          kubeconfig: __KUBECONFIG_FILEPATH__
+    clusterNetwork: 10-calico
+    defaultNetworks: []
+    delegates: []
+#      - type: calico
+#        name: k8s-pod-network
+#        cniVersion: 0.3.0
+#        log_level: info
+#        etcd_endpoints: __ETCD_ENDPOINTS__
+#        etcd_key_file: __ETCD_KEY_FILE__
+#        etcd_cert_file: __ETCD_CERT_FILE__
+#        etcd_ca_cert_file: __ETCD_CA_CERT_FILE__
+#        ipam:
+#          type: calico-ipam
+#        policy:
+#          type: k8s
+#        kubernetes:
+#          kubeconfig: __KUBECONFIG_FILEPATH__
 #      - type: portmap
 #        snat: true
 #        capabilities:
@@ -81,3 +84,4 @@ conf:
 manifests:
   configmap_etc: true
   daemonset_multus: true
+  crd_net_attach_def: true

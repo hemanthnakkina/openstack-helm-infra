@@ -24,9 +24,9 @@ kind: BGPConfiguration
 metadata:
   name: default
 spec:
-  asNumber: {{ .Values.networking.bgp.asnumber }}
-  logSeverityScreen: {{ .Values.conf.node.FELIX_LOGSEVERITYSCREEN }}
+  logSeverityScreen: Info
   nodeToNodeMeshEnabled: {{ .Values.networking.settings.mesh }}
+  asNumber: {{ .Values.networking.bgp.asnumber }}
 EOF
 
 # FelixConfiguration: ipipEnabled
@@ -37,10 +37,10 @@ metadata:
   name: default
 spec:
   ipipEnabled: {{ .Values.networking.settings.ippool.ipip.enabled }}
-  logSeverityScreen: {{ .Values.conf.node.FELIX_LOGSEVERITYSCREEN }}
+  logSeverityScreen: Info
 EOF
 
-# ipPool - https://docs.projectcalico.org/v3.3/reference/calicoctl/resources/ippool
+# ipPool - https://docs.projectcalico.org/v3.2/reference/calicoctl/resources/ippool
 $CTL apply -f - <<EOF
 apiVersion: projectcalico.org/v3
 kind: IPPool
@@ -48,9 +48,6 @@ metadata:
   name: default-ipv4-ippool
 spec:
   cidr: {{ .Values.conf.node.CALICO_IPV4POOL_CIDR }}
-{{- if .Values.conf.node.CALICO_IPV4POOL_BLOCKSIZE }}
-  blockSize: {{ .Values.conf.node.CALICO_IPV4POOL_BLOCKSIZE }}
-{{- end }}
   ipipMode: {{ .Values.networking.settings.ippool.ipip.mode }}
   natOutgoing: {{ .Values.networking.settings.ippool.nat_outgoing }}
   disabled: {{ .Values.networking.settings.ippool.disabled }}
@@ -78,15 +75,10 @@ EOF
 # Priority: {{ $n }} objects
 {{- range $section, $data := $envAll.Values.networking.policy }}
 {{- if eq (toString $data.priority) (toString $n) }}
-{{/* add a safety check so we don't attempt to run calicoctl with an empty resource set */}}
-{{- if gt (len $data.rules) 0 }}
 # Section: {{ $section }} Priority: {{ $data.priority }} {{ $n }}
 $CTL apply -f - <<EOF
 {{ $data.rules | toYaml }}
 EOF
-{{- else }}
-echo "Skipping empty rules list."
-{{- end }}
 {{- end }}
 {{- end }}
 {{- end }}

@@ -104,6 +104,18 @@ spec:
 {{ tuple $envAll $envAll.Values.pod.resources.multus | include "helm-toolkit.snippets.kubernetes_resources" | indent 10 }}
           securityContext:
             privileged: true
+          env:
+            - name: KUBERNETES_NODE_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.nodeName
+          command:
+            - /bin/bash
+            - -cex
+            - |
+              #!/bin/bash
+              sed "s|__KUBERNETES_NODE_NAME__|${KUBERNETES_NODE_NAME}|g" /usr/src/multus-cni/images/00-multus.conf.template  > /usr/src/multus-cni/images/00-multus.conf
+              /entrypoint.sh --multus-conf-file=/usr/src/multus-cni/images/00-multus.conf
           resources:
             requests:
               cpu: 250m
@@ -113,7 +125,7 @@ spec:
             - name: cni-net-dir
               mountPath: /host/etc/cni/net.d
             - name: multus-cfg
-              mountPath: /usr/src/multus-cni/images/70-multus.conf
+              mountPath: /usr/src/multus-cni/images/00-multus.conf.template
               subPath: "cni-conf.json"
       volumes:
         - name: cni-bin-dir
