@@ -21,8 +21,8 @@ limitations under the License.
 apiVersion: "k8s.cni.cncf.io/v1"
 kind: NetworkAttachmentDefinition
 metadata:
-  name: $net.name
-  namespace: $net.namespace
+  name: {{ $net.name }}
+  namespace: {{ $net.namespace }}
 spec:
   config: |-
 {{ toJson $net.cni_conf | indent 4 }}
