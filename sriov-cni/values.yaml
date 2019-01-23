@@ -1,0 +1,47 @@
+# Default values for mychart.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+
+pod:
+  resources:
+    enabled: false
+    sriov_cni:
+      requests:
+        memory: "128Mi"
+        cpu: "100m"
+      limits:
+        memory: "1024Mi"
+        cpu: "2000m"
+
+
+conf:
+  sdp_config:
+    resourceList:
+    - resourceName: sriov_net_A
+      rootDevices:
+      - '87:00.1'
+      sriovMode: true
+      deviceType: netdevice
+
+  net_attach_defs:
+    - name: 10-sriovnet-a
+      namespace: kube-system
+      cni_conf:
+        type: sriov
+        master: enp94s0f0
+        ipam: 
+          type: host-local
+          subnet: 10.56.217.0/24
+          rangeStart: 10.56.217.171
+          rangeEnd: 10.56.217.181
+          routes:
+            - dst: 0.0.0.0/0
+        gateway: 10.56.217.1
+
+manifests:
+  net_attach_defs_sriov: true
+  sriov_device_plugin_ds: true
+  crd_sriov_device_plugin: true
+  configmap_sriov_device_plugin: true
+  kube_sriov_cni_ds: true
