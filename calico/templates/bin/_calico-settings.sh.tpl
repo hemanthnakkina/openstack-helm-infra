@@ -47,10 +47,10 @@ apiVersion: projectcalico.org/v3
 kind: IPPool
 metadata:
   name: {{ $ippool.name }}
- spec:
+spec:
   cidr: {{ $ippool.spec.cidr }}
-{{- if $ippool.sepc.blockSize }}
-  blockSize: {{ $ippool.sepc.blockSize }}
+{{- if $ippool.spec.blockSize }}
+  blockSize: {{ $ippool.spec.blockSize }}
 {{- end }}
   ipipMode: {{ $ippool.spec.ipipMode }}
   natOutgoing: {{ $ippool.spec.natOutgoing }}
