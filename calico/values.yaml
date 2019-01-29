@@ -190,16 +190,15 @@ networking:
 
   settings:
     mesh: "on"
-    # technically this could be a list, today we only support
-    # a single podSubnet, the one above.  The settings below
-    # will be applied to that ipPool
-    ippool:
-      ipip:
-        enabled: "true"
-        # Titlecase
-        mode: "Always"
-      nat_outgoing: "true"
-      disabled: "false"
+    ipipEnabled: true
+    ippools:
+      - name: default-ipv4-ippool
+        spec:
+          cidr: 192.168.0.0/16
+          ipipMode: Always
+          blockSize: 26
+          natOutgoing: true
+          disabled: false
 
   bgp:
     # our asnumber for bgp peering

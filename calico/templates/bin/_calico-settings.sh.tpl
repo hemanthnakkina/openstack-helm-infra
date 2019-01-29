@@ -36,7 +36,7 @@ kind: FelixConfiguration
 metadata:
   name: default
 spec:
-  ipipEnabled: {{ .Values.networking.settings.ippool.ipip.enabled }}
+  ipipEnabled: {{ .Values.networking.settings.ipipEnabled }}
   logSeverityScreen: Info
 EOF
 
@@ -45,14 +45,18 @@ $CTL apply -f - <<EOF
 apiVersion: projectcalico.org/v3
 kind: IPPool
 metadata:
-  name: default-ipv4-ippool
-spec:
-  cidr: {{ .Values.conf.node.CALICO_IPV4POOL_CIDR }}
-  ipipMode: {{ .Values.networking.settings.ippool.ipip.mode }}
-  natOutgoing: {{ .Values.networking.settings.ippool.nat_outgoing }}
-  disabled: {{ .Values.networking.settings.ippool.disabled }}
+  name: {{ $ippool.name }}
+ spec:
+  cidr: {{ $ippool.spec.cidr }}
+{{- if $ippool.sepc.blockSize }}
+  blockSize: {{ $ippool.sepc.blockSize }}
+{{- end }}
+  ipipMode: {{ $ippool.spec.ipipMode }}
+  natOutgoing: {{ $ippool.spec.natOutgoing }}
+  disabled: {{ $ippool.spec.disabled }}
 EOF
 
+{{- end }}
 
 # IPv4 peers
 {{ if .Values.networking.bgp.ipv4.peers }}
