@@ -41,6 +41,7 @@ spec:
 EOF
 
 # ipPool - https://docs.projectcalico.org/v3.2/reference/calicoctl/resources/ippool
+{{- range $i, $ippool := .Values.networking.settings.ippools }}
 $CTL apply -f - <<EOF
 apiVersion: projectcalico.org/v3
 kind: IPPool
